@@ -20,6 +20,18 @@ void split(const string& s, char delim,vector<string>& v) {
     }
 }
 
+bool verify_independance(string s, char c){
+
+	for(int  i = 0;i < s.length();i++)
+	{
+    	if(s[i] == c)
+    	{
+        	return true;
+    	}
+	}
+	return false;
+}
+
 int main(){
 	// variables
 	string type;
@@ -46,30 +58,27 @@ while(getline(cin, type)){
 
 	if (type == "[Probabilities]")
 	{
+		cout<<"[Probabilities]" << "\n";
 		int i = 0;
 		while(getline(cin, probabilitie) && !probabilitie.empty()){
-			
-			cout << probabilitie << "\n";
 			split(probabilitie,'=',v_probabilities);
-			split(v_probabilities[i],'|',cases);
-			
-			if (v_probabilities[i]){
-				
-			}
-
-			p_cases = {cases,v_probabilities.size()-1};
-			cout << "probabilitie: " << v_probabilities[i]<< " ";
-			cout << cases[1] << "\n";
-			probabilities.push_back(p_cases);
-
 			p = stof(v_probabilities[v_probabilities.size()-1]);
-			cout << p << "\n";
+			if (verify_independance(v_probabilities[i],'|')){
+				split(v_probabilities[i],'|',cases);
+				p_cases = {cases,p};
+				probabilities.push_back(p_cases);
+			}
+			p_cases = {v_probabilities,p};
+			probabilities.push_back(p_cases);
+			cout << v_probabilities[i] << '=' << p <<"\n";
+			cout << v_probabilities[i] <<"\n";
 			i += 2;
 		}
 	}
 
 	if (type == "[Queries]")
 	{
+		cout << "[Queries]"<< "\n";
 		while(getline(cin, querie) && !querie.empty()){
 			cout << querie << "\n";
 			split(querie,'=',v_queries);
