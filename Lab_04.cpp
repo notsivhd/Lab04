@@ -8,14 +8,31 @@ using namespace std;
 int main(){
 	
 	// variables
-	string parameters;
+	string type;
+	string probabilities = " ";
 	string nodes;
-	
-	getline(cin, parameters);
-	cout << parameters <<"\n";
-	getline(cin, nodes);
-	cout << nodes << "\n";	
-	getline(cin, parameters);
-	cout << parameters << "\n";
+	string queries = " ";
+
+while(getline(cin, type)){
+	if (type == "[Nodes]")
+	{
+		getline(cin, nodes);
+		cout << nodes << "\n";
+	}
+
+	if (type == "[Probabilities]")
+	{
+		while(getline(cin, probabilities) && !probabilities.empty()){
+			cout << probabilities << "\n";
+		}
+	}
+
+	if (type == "[Queries]")
+	{
+		while(getline(cin, queries) && !queries.empty()){
+			cout << queries << "\n";
+		}
+	}
+}
 	return 0;
 }
