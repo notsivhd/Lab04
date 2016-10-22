@@ -3,6 +3,7 @@
 #include <utility>
 #include <iostream>
 #include <string>
+#include <cstring>
 #include <vector>
 #include <unordered_map>
 
@@ -12,8 +13,8 @@ struct Node
 {
 	string name;
 	vector< struct Node *> parents;
-	unordered_map< string, double > probTable;
-	double probability;
+	unordered_map< string, float > probTable;
+	float probability;
 };
 
 void split(string& s, char delim, vector<string>& v)
@@ -63,6 +64,8 @@ int main()
 	string node;
 	string query = " ";
 
+     string keyT;
+
 	vector<string> v_nodes;
 	vector<string> v_probabilities;
 	vector<string> v_queries;
@@ -103,6 +106,7 @@ int main()
 	    {
 		    cout<<"[Probabilities]" << "\n";
 		    i = 0;
+            keyT = "";
 
 		    while( getline(cin, probability) && !probability.empty() )
             {
@@ -116,9 +120,12 @@ int main()
 				    split(v_probabilities[i], '|', v_cases);
                     cout << "//" << v_cases[0] << "//" << endl;
 
-                    node_it = nodes.find(v_cases[0].substr(1, v_cases[j].length() ));
+                    node_it = nodes.find(v_cases[0].substr(1, v_cases[0].length() ));
                     if( node_it != nodes.end() )
                      {
+                        //cout << "sub " << v_cases[0].substr(0, 2)  << endl;
+                        keyT.insert(0, v_cases[0].substr(0, 2));
+
                         if ( verify_independance(v_cases[1], ',') )
                         {
                             //Tiene mas de un padre
@@ -131,6 +138,8 @@ int main()
                          
                                 if(parent_it != nodes.end())
                                 {
+                                    //cout << "sub " << v_parents[j].substr(0, 2) << endl;
+                                    keyT += v_parents[j].substr(0, 2);
                                     node_it->second->parents.push_back(parent_it->second);
                                 }
                                 else
@@ -141,11 +150,13 @@ int main()
                         }
                         else
                         {        
-                            cout << "@" << v_cases[1].substr(1, v_cases[j].length() ) << "@" << endl;
+                            cout << "@" << v_cases[1].substr(1, v_cases[1].length() ) << "@" << endl;
                             parent_it = nodes.find( v_cases[1].substr(1, v_cases[1].length() ));
 
                             if(parent_it != nodes.end())
                             {
+                                //cout << "sub " << v_cases[1].substr(0, 2) << endl;
+                                keyT += v_cases[1].substr(0, 2);
                                 node_it->second->parents.push_back(parent_it->second);
                             }
                             else
@@ -155,9 +166,7 @@ int main()
                         }
 
                         v_parents.clear();
-                        //for each element in v_parents
-				        // key = v_parents[0][0] + p_parents[0][1]
-                        //pTable.emplace(key, p);
+                        node_it->second->probTable.emplace(keyT, static_cast<float>(p));
                     }
                     else{
                         cout << "Nodo no existe" << endl;
@@ -167,20 +176,40 @@ int main()
 			    else
                 {
 				    // Node is a root element
-				    //element->parents = NULL;
-                    cout << "No parents" << endl;
+                    cout << "No parents " << v_probabilities[i] << " " << i <<endl;
+                    if(v_probabilities[i].back() == ' ')
+                    {
+                        node_it = nodes.find(v_probabilities[i].substr(1, v_probabilities[i].length() - 2));
+                    }
+                    else
+                    {
+                        node_it = nodes.find(v_probabilities[i].substr(1, v_probabilities[i].length() ));
+                    }
                     
+                    if( node_it != nodes.end() )
+                     {
+                        keyT.insert(0, v_probabilities[i].substr(0, 2));
+                        node_it->second->probTable.emplace(keyT, static_cast<float>(p));     
+                    }
+                    else{
+                        cout << "Not found" << endl;
+                    }          
 			    }
-			
-                v_cases.clear();     
-    // 			element->pTable.insert(key, p);
 
-			    i += 2; 
+                v_cases.clear();    
+                keyT.clear(); 
+			    i += 2;                 
 		    }
+            
+            v_probabilities.clear();
+            /*for(auto&x: nodes)
+            {
+                for(auto&y: x.second->probTable)
+                {
+                    cout << y.first<< " " << y.second << endl;
+                }
+            }*/
 	    }
-
-        v_probabilities.clear();
-
 
 	    if (type == "[Queries]")
 	    {
@@ -199,7 +228,9 @@ int main()
 
      
 		    }
-	    }
+
+            v_queries.clear();
+	    }        
     }
 	return 0;
 }
