@@ -1,0 +1,93 @@
+Sat Oct 22 18:07:52 2016
+
+
+Moral links:
+
+    Marrying Bulgary and Earthquake
+
+
+Triangulating prime component with 2 members:
+    JohnCalls, Alarm
+This component is a clique of cost 4
+
+Triangulating prime component with 2 members:
+    MaryCalls, Alarm
+This component is a clique of cost 4
+
+Triangulating prime component with 3 members:
+    Alarm, Earthquake, Bulgary
+This component is a clique of cost 8
+
+
+Total cost of triangulation for all prime components is 16
+
+
+Elimination sequence:
+
+    Bulgary
+    Earthquake
+    JohnCalls
+    MaryCalls
+    Alarm
+
+
+Cliques:
+
+Clique 3, 2 members, table size = 4:
+    Alarm, MaryCalls
+
+Clique 2, 2 members, table size = 4:
+    Alarm, JohnCalls
+
+Clique 1, 3 members, table size = 8:
+    Alarm, Earthquake, Bulgary
+
+Total clique table size: 16
+
+
+The junction forest:
+
+Creating junction tree with clique 3 as root ...
+
+Cliques 2 and 3 linked, separator has 1 member and table size = 2:
+    Alarm
+
+Cliques 1 and 3 linked, separator has 1 member and table size = 2:
+    Alarm
+
+
+Assignment of potentials to cliques:
+
+    Node MaryCalls assigned to clique 3
+    Node JohnCalls assigned to clique 2
+    Node Alarm assigned to clique 1
+    Node Earthquake assigned to clique 1
+    Node Bulgary assigned to clique 1
+
+
+Checking conditional probability potentials:
+
+    No errors found
+
+
+Beliefs for chance nodes:
+
+    MaryCalls:
+	MTrue      0.0117363
+	MFalse     0.988264
+
+    JohnCalls:
+	JTrue      0.052139
+	JFalse     0.947861
+
+    Alarm:
+	ATrue      0.00251644
+	AFalse     0.997484
+
+    Earthquake:
+	ETrue      0.002
+	EFalse     0.998
+
+    Bulgary:
+	BTrue      0.001
+	BFalse     0.999
