@@ -1,0 +1,54 @@
+Sat Oct 22 18:27:16 2016
+
+
+Moral links:
+
+
+
+Triangulating prime component with 2 members:
+    Test, Ill
+This component is a clique of cost 4
+
+
+Total cost of triangulation for all prime components is 4
+
+
+Elimination sequence:
+
+    Ill
+    Test
+
+
+Cliques:
+
+Clique 1, 2 members, table size = 4:
+    Test, Ill
+
+Total clique table size: 4
+
+
+The junction forest:
+
+Creating junction tree with clique 1 as root ...
+
+
+Assignment of potentials to cliques:
+
+    Node Test assigned to clique 1
+    Node Ill assigned to clique 1
+
+
+Checking conditional probability potentials:
+
+    No errors found
+
+
+Beliefs for chance nodes:
+
+    Test:
+	Ttest      0.05085
+	Ftest      0.94915
+
+    Ill:
+	TIll       0.001
+	FIll       0.999
