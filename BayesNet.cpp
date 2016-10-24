@@ -189,7 +189,6 @@ double chainRule(string s)
                     auto pos = k.first.find(s.substr(j-1, 2));
                     if(pos < k.first.size())
                     {
-                        //cout << s.substr(j-1, 2) << " esta en " << k.first << endl;
                         aux.push_back(k.first);
                     }
                 }
@@ -211,14 +210,11 @@ double chainRule(string s)
                 }               
                 j+=2;
             }
-            
-            //cout << "factor = " << match[0] << " = ";
-            double p = node_it->second->probTable[match[0]];   
-            //cout << p; 
+
+            double p = node_it->second->probTable[match[0]];
             result *= p;
             match.clear();
         }
-        //cout << endl;
         i+=2;
     }
     return result;
@@ -373,19 +369,6 @@ int main()
 		    }
             
             v_probabilities.clear();
-            /*for(auto&x: nodes)
-            {
-                cout << x.second->name << endl;
-
-                for(auto&y: x.second->parents)
-                {
-                    cout << " p  " << y << endl;
-                }
-                for(auto&z: x.second->probTable)
-                {
-                    cout << "     " << z.first<< " " << z.second << endl;
-                }
-            }*/
 	    }
 
 	    if (type == "[Queries]")
@@ -460,20 +443,17 @@ int main()
                 sort(exp.begin(), exp.end());
                 for(j = 0; j < exp.size(); j++)
                 {
-                    //cout << exp[j] << " = " << chainRule(exp[j]) << endl;
                     p_num += chainRule(exp[j]);
                 }
-                //cout << "num " << p_num <<  endl;
 
                 exp.clear();
                 exp = completeExpression(denominator);    
                 sort(exp.begin(), exp.end());
                 for(j = 0; j < exp.size(); j++)
                 {
-                    //cout << j << " " << exp[j] << " = " << chainRule(exp[j]) << endl << endl;;
                     p_den += chainRule(exp[j]);
                 }
-                //cout << "den " << p_den <<  endl;
+                
                 //cout << setprecision(7) << fixed << p_num/p_den << endl;
                 printf("%.7G\n", p_num/p_den);
                 //cout << endl;
