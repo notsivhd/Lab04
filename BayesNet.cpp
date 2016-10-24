@@ -5,17 +5,19 @@
 #include <string>
 #include <cstring>
 #include <vector>
-#include <unordered_map>
+#include <map>
 #include <set>
+#include <algorithm>  
+#include <iterator> 
 
 using namespace std;
 
 struct Node
 {
 	string name;
-	vector< struct Node *> parents;
-	unordered_map< string, float > probTable;
-	float probability;
+	set<string> parents;
+	map< string, double> probTable;
+	double probability;
 };
 
 struct compareHidden
@@ -23,7 +25,6 @@ struct compareHidden
 	bool operator()(const string& s1, const string& s2)
     {
         int i = 0, j = 0;
-        bool a;
         if(s1.front() == '+' || s1.front() == '-')
         {    
             i = 1;
@@ -32,16 +33,14 @@ struct compareHidden
         {
             j = 1;
         }
-        a = (s1.substr(i, s1.length()) < s2.substr(j, s2.length()));
-        //cout << s1.substr(i, s1.length()) << " " << s2.substr(j, s2.length()) << endl;
-        return a;
+        return (s1.substr(i, s1.length()) < s2.substr(j, s2.length()));;
 	}
 };
 
-	unordered_map< string, struct Node *> nodes;
-	unordered_map< string, struct Node *>:: iterator node_it;
-    unordered_map< string, struct Node *>:: iterator parent_it;
-    unordered_map< string, struct Node *>:: iterator hidden_it;
+	map< string, struct Node *> nodes;
+	map< string, struct Node *>:: iterator node_it;
+    map< string, struct Node *>:: iterator parent_it;
+    map< string, struct Node *>:: iterator hidden_it;
 
 void split(string& s, char delim, vector<string>& v)
 {
@@ -82,64 +81,134 @@ bool verify_independance(string s, char c)
 	return false;
 }
 
+
+
 void hiddenNodes(set< string, compareHidden > given)
 {
-    set<string, compareHidden>::iterator given_it;
-
-    for(auto&x: given)
+    for(auto &x: given)
     {
-        if(x[0] == '+' || x[0] == '-')
+        if( x[0] == '+' || x[0] == '-')
         {
-            hidden_it = nodes.find(x.substr(1, x.length())) ;  
+            hidden_it = nodes.find( x.substr(1, x.length())) ;  
         }
         else
         {
             hidden_it = nodes.find(x);   
         }
-        
+
         if( hidden_it != nodes.end() )
         {
-            if(hidden_it->second->parents.size() > 0)
+            for(auto &y: hidden_it->second->parents)              
             {
-                for(auto&y: hidden_it->second->parents)              
-                {
-                    //cout << "y " << y->name << ".." << endl;
-                    given_it = given.find(y->name);
-                    if( given_it == given.end() )                   
-                    {
-                        given.insert(y->name);
-                    }
-                }
+                given.insert(y);
             }
         }
     }
 
-    for(auto&x: given)
+   for(auto&x: given)
     {
         cout << x << endl;
     }
 }
 
-/*void chainRule()
+vector<string> completeExpression(string s)
 {
-    //numerador = todos + parents
-    //denominador = todos despues de | + parents
+    int i=0, j;
+    vector<string> exp;
+    vector<string> aux;
 
-    //obtener los primeros dos caracteres de cada elemento
+    exp.push_back("");
+    while(i < s.size())
+    {
+        if(s[i] == '+' || s[i] == '-')
+        {
+            for(j = 0; j < exp.size(); j++)
+            {
+                exp[j] += s[i];
+                exp[j] += s[i+1];
+            }
+            i+=2;
+        }
+        else
+        {
+            aux = exp;
+            copy(aux.begin(), aux.end(), back_inserter(exp));
 
-    //for each element in numerador
-        //obtener nodo
-        //obtener probTble del nodo seleccionado
+            for(j = 0; j < exp.size()/2; j++)
+            {
+                exp[j] += '+';
+                exp[j] += s[i];
+            }
+
+            for(; j < exp.size(); j++)
+            {
+                exp[j] += '-';
+                exp[j] += s[i];
+            }
+            i++;
+        }
+    }    
+    return exp;
 }
 
-void sumOut( //vector de nodos )
+double chainRule(string s)
 {
-    //for each element in vector
-        //get parents
+    int i = 1, j=1;
+    vector<string> match;
+    vector<string> aux;
+    vector<string> intersect;
 
-    //for each parent
-        //duplicate actual expresions by adding pair of sum with +p and - p
-}*/
+    double result = 1.0;
+
+    cout << s << endl;
+    while(i < s.size())
+    {      
+        node_it = nodes.lower_bound(s.substr(i, i));
+        if(node_it != nodes.end())
+        {
+            j = 1;       
+            while(j < s.size() )
+            {  
+                for(auto&k: node_it->second->probTable)                
+                {
+                    auto pos = k.first.find(s.substr(j-1, 2));
+                    if(pos < k.first.size())
+                    {
+                        //cout << s.substr(j-1, 2) << " esta en " << k.first << endl;
+                        aux.push_back(k.first);
+                    }
+                }
+
+                if(aux.size() > 0 && match.size() == 0)
+                {
+                    match = aux;
+                    aux.clear();
+                } 
+                else if(aux.size() > 0 && match.size() > 0)
+                {
+                    sort(aux.begin(), aux.end());
+                    sort(match.begin(), match.end());
+                    set_intersection(aux.begin(), aux.end(), match.begin(), match.end(), back_inserter(intersect));
+                    match.clear();
+                    match = intersect;
+                    aux.clear();
+                    intersect.clear();
+                }               
+                j+=2;
+            }
+            
+            cout << "factor = " << match[0] << " = ";
+            double p = node_it->second->probTable[match[0]];   
+            cout << p; 
+            result *= p;
+            match.clear();
+        }
+        cout << endl;
+        i+=2;
+    }
+    return result;
+}
+
 
 int main()
 {	
@@ -159,10 +228,13 @@ int main()
     vector<string> v_cases;
 	vector<string> v_parents;
 
+    vector<string> exp;
+
     set<string, compareHidden> num;
     set<string, compareHidden> den;
-	float p;
+	double p;
     int i, j;
+    size_t a;
 
     // Read input file
 
@@ -197,18 +269,15 @@ int main()
             {
                 // Get probability value
 			    split(probability, '=', v_probabilities);
-			    p = stof(v_probabilities[v_probabilities.size()-1]);
+			    p = stod(v_probabilities[v_probabilities.size()-1]);
 
 			    if ( verify_independance(v_probabilities[i], '|') )
                 {
-                    // Get parents
 				    split(v_probabilities[i], '|', v_cases);
-                    //cout << "//" << v_cases[0] << "//" << endl;
 
                     node_it = nodes.find(v_cases[0].substr(1, v_cases[0].length() ));
                     if( node_it != nodes.end() )
                      {
-                        //cout << "sub " << v_cases[0].substr(0, 2)  << endl;
                         keyT.insert(0, v_cases[0].substr(0, 2));
 
                         if ( verify_independance(v_cases[1], ',') )
@@ -218,14 +287,11 @@ int main()
 
                             for(j = 0; j < v_parents.size(); j++)
                             {
-                                //cout << "==" << v_parents[j] << "==" << endl;
                                 parent_it = nodes.find( v_parents[j].substr( 1, v_parents[j].length() ) );
-                         
                                 if(parent_it != nodes.end())
                                 {
-                                    //cout << "sub " << v_parents[j].substr(0, 2) << endl;
                                     keyT += v_parents[j].substr(0, 2);
-                                    node_it->second->parents.push_back(parent_it->second);
+                                    node_it->second->parents.insert(v_parents[j].substr( 1, v_parents[j].length() ) );
                                 }
                                 else
                                 {
@@ -234,15 +300,12 @@ int main()
                             }
                         }
                         else
-                        {        
-                            //cout << "@" << v_cases[1].substr(1, v_cases[1].length() ) << "@" << endl;
+                        {
                             parent_it = nodes.find( v_cases[1].substr(1, v_cases[1].length() ));
-
                             if(parent_it != nodes.end())
                             {
-                                //cout << "sub " << v_cases[1].substr(0, 2) << endl;
                                 keyT += v_cases[1].substr(0, 2);
-                                node_it->second->parents.push_back(parent_it->second);
+                                node_it->second->parents.insert( v_cases[1].substr(1, v_cases[1].length() ) );
                             }
                             else
                             {
@@ -251,7 +314,10 @@ int main()
                         }
 
                         v_parents.clear();
-                        node_it->second->probTable.emplace(keyT, static_cast<float>(p));
+                        node_it->second->probTable.emplace(keyT, static_cast<double>(p));
+
+                        keyT[0] = '-';
+                        node_it->second->probTable.emplace(keyT, static_cast<double>(1-p));
                     }
                     else{
                         cout << "Nodo no existe" << endl;
@@ -274,7 +340,12 @@ int main()
                     if( node_it != nodes.end() )
                      {
                         keyT.insert(0, v_probabilities[i].substr(0, 2));
-                        node_it->second->probTable.emplace(keyT, static_cast<float>(p));     
+                        node_it->second->probTable.emplace(keyT, static_cast<double>(p));     
+
+                        keyT.clear();
+                        keyT.insert(0, '-' + v_probabilities[i].substr(1, 1));
+                        node_it->second->probTable.emplace(keyT, static_cast<double>(1-p)); 
+
                     }
                     else{
                         cout << "Not found" << endl;
@@ -289,9 +360,15 @@ int main()
             v_probabilities.clear();
             for(auto&x: nodes)
             {
-                for(auto&y: x.second->probTable)
+                cout << x.second->name << endl;
+
+                for(auto&y: x.second->parents)
                 {
-                    cout << y.first<< " " << y.second << endl;
+                    cout << " p  " << y << endl;
+                }
+                for(auto&z: x.second->probTable)
+                {
+                    cout << "     " << z.first<< " " << z.second << endl;
                 }
             }
 	    }
@@ -304,7 +381,6 @@ int main()
                 denominator = "";
                 numerator = "";
 
-			    //cout << query << "\n";
                 if ( verify_independance(query, '|') )
                 {
 			        split(query,'|',v_queries);
@@ -315,7 +391,6 @@ int main()
 
                         for(j = 0; j < v_cases.size(); j++)
                         {
-                            //cout << ".." << v_cases[j] << ".." << endl;
                             numerator += v_cases[j];
                             num.insert(v_cases[j]);
                         }  
@@ -334,7 +409,6 @@ int main()
 
                         for(j = 0; j < v_cases.size(); j++)
                         {
-                            //cout << "==" << v_cases[j] << "==" << endl;
                             denominator += v_cases[j];
                             num.insert(v_cases[j]);
                             den.insert(v_cases[j]);
@@ -357,12 +431,12 @@ int main()
                 
 
                 numerator += denominator;
+/*
                 cout << endl << "Num y den" << endl;
                 cout << numerator << " " << num.size() << endl;
                 cout << denominator << " " << den.size() <<endl;
 
                 //num
-
                 cout << "******num******" << endl;
                 hiddenNodes(num);
                 cout << "************" << endl;
@@ -371,6 +445,9 @@ int main()
                 cout << "******den******" << endl;
                 hiddenNodes(den);
                 cout << "************" << endl;
+*/
+                
+                
 	            //for each element in v_queries look for the parents and construc numerator
 	            //denominator = nodes and parents after |
 	
@@ -384,6 +461,44 @@ int main()
 	        }
         }     
     }
+
+
+    /*exp = completeExpression("-B+JAE");    
+    sort(exp.begin(), exp.end());
+    for(j = 0; j < exp.size(); j++)
+    {
+        cout << exp[j] << " = " << chainRule(exp[j]) << endl;
+        p_num += chainRule(exp[j]);
+    }
+    chainRule(exp[0]);*/
+
+
+    double p_num = 0.0;
+    double p_den = 0.0;
+    exp = completeExpression("+B+JAE");    
+    sort(exp.begin(), exp.end());
+    for(j = 0; j < exp.size(); j++)
+    {
+        //cout << exp[j] << " = " << chainRule(exp[j]) << endl;
+        p_num += chainRule(exp[j]);
+    }
+    cout << "num " << p_num <<  endl;
+
+
+
+    cout << "\n\n\n";
+    exp.clear();
+    exp = completeExpression("B+JAE");    
+    sort(exp.begin(), exp.end());
+    for(j = 0; j < exp.size(); j++)
+    {
+        //cout << j << " " << exp[j] << " = " << chainRule(exp[j]) << endl << endl;;
+        p_den += chainRule(exp[j]);
+        cout << endl;
+    }
+    cout << "den " << p_den <<  endl;
+
+    cout << p_num/p_den << endl;
     return 0;
     
 }
