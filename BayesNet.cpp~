@@ -9,6 +9,7 @@
 #include <set>
 #include <algorithm>  
 #include <iterator> 
+#include <iomanip>
 
 using namespace std;
 
@@ -83,32 +84,46 @@ bool verify_independance(string s, char c)
 
 
 
-void hiddenNodes(set< string, compareHidden > given)
+void hiddenNodes(string &given)
 {
-    for(auto &x: given)
-    {
-        if( x[0] == '+' || x[0] == '-')
-        {
-            hidden_it = nodes.find( x.substr(1, x.length())) ;  
-        }
-        else
-        {
-            hidden_it = nodes.find(x);   
-        }
+    int i;
+    int offset;
+    set<string> parents;
 
-        if( hidden_it != nodes.end() )
+    for(i = 0; i < given.size(); i++)
+    {
+        if(given[i] != '+' && given[i] != '-')
         {
-            for(auto &y: hidden_it->second->parents)              
+            parents.insert(given.substr(i, 1));
+        }
+    }
+
+    for(i = 0; i < given.size(); i++)
+    {
+        offset = 0;
+        if(given[i] != '+' && given[i] != '-')
+        {
+            auto abc = parents.find(given.substr(i, 1));
+            if(abc == parents.end())
             {
-                given.insert(y);
+                parents.insert(given.substr(i, 1));
             }
-        }
-    }
 
-   for(auto&x: given)
-    {
-        cout << x << endl;
-    }
+            node_it = nodes.lower_bound(given.substr(i, 1));
+            if(node_it != nodes.end())
+            {
+                for(auto&x: node_it->second->parents)
+                {
+                    auto abc = parents.find(x.substr(0, 1));
+                    if(abc == parents.end())
+                    {
+                        given += x.substr(0, 1);
+                        parents.insert(x.substr(0, 1));
+                    }
+                } 
+            }      
+        }
+   }
 }
 
 vector<string> completeExpression(string s)
@@ -160,10 +175,10 @@ double chainRule(string s)
 
     double result = 1.0;
 
-    cout << s << endl;
+    //cout << s << endl;
     while(i < s.size())
     {      
-        node_it = nodes.lower_bound(s.substr(i, i));
+        node_it = nodes.lower_bound(s.substr(i, 1));
         if(node_it != nodes.end())
         {
             j = 1;       
@@ -197,13 +212,13 @@ double chainRule(string s)
                 j+=2;
             }
             
-            cout << "factor = " << match[0] << " = ";
+            //cout << "factor = " << match[0] << " = ";
             double p = node_it->second->probTable[match[0]];   
-            cout << p; 
+            //cout << p; 
             result *= p;
             match.clear();
         }
-        cout << endl;
+        //cout << endl;
         i+=2;
     }
     return result;
@@ -261,7 +276,7 @@ int main()
         // Get the probabilities to generate probability table
 	    if (type == "[Probabilities]")
 	    {
-		    cout<<"[Probabilities]" << "\n";
+		    //cout<<"[Probabilities]" << "\n";
 		    i = 0;
             keyT = "";
 
@@ -295,7 +310,7 @@ int main()
                                 }
                                 else
                                 {
-                                    cout << "Nodo padre no existe" << endl;
+                                    //cout << "Nodo padre no existe" << endl;
                                 }
                             }
                         }
@@ -309,7 +324,7 @@ int main()
                             }
                             else
                             {
-                                cout << "Nodo padre no existe" << endl;
+                                ///cout << "Nodo padre no existe" << endl;
                             }
                         }
 
@@ -320,14 +335,14 @@ int main()
                         node_it->second->probTable.emplace(keyT, static_cast<double>(1-p));
                     }
                     else{
-                        cout << "Nodo no existe" << endl;
+                        //cout << "Nodo no existe" << endl;
                     }
 
 			    }	
 			    else
                 {
 				    // Node is a root element
-                    cout << "No parents " << v_probabilities[i] << " " << i <<endl;
+                    //cout << "No parents " << v_probabilities[i] << " " << i <<endl;
                     if(v_probabilities[i].back() == ' ')
                     {
                         node_it = nodes.find(v_probabilities[i].substr(1, v_probabilities[i].length() - 2));
@@ -348,7 +363,7 @@ int main()
 
                     }
                     else{
-                        cout << "Not found" << endl;
+                        //cout << "Not found" << endl;
                     }          
 			    }
 
@@ -358,7 +373,7 @@ int main()
 		    }
             
             v_probabilities.clear();
-            for(auto&x: nodes)
+            /*for(auto&x: nodes)
             {
                 cout << x.second->name << endl;
 
@@ -370,12 +385,12 @@ int main()
                 {
                     cout << "     " << z.first<< " " << z.second << endl;
                 }
-            }
+            }*/
 	    }
 
 	    if (type == "[Queries]")
 	    {
-		    cout << "[Queries]"<< "\n";
+		    //cout << "[Queries]"<< "\n";
 		    while(getline(cin, query) && !query.empty())
             {
                 denominator = "";
@@ -391,13 +406,13 @@ int main()
 
                         for(j = 0; j < v_cases.size(); j++)
                         {
-                            numerator += v_cases[j];
+                            numerator += v_cases[j].substr(0, 2);
                             num.insert(v_cases[j]);
                         }  
                     }
                     else
                     {
-                        numerator = v_queries[0];
+                        numerator = v_queries[0].substr(0, 2);
                         num.insert(v_queries[0]);
                     }
                     v_cases.clear();
@@ -409,14 +424,14 @@ int main()
 
                         for(j = 0; j < v_cases.size(); j++)
                         {
-                            denominator += v_cases[j];
+                            denominator += v_cases[j].substr(0, 2);
                             num.insert(v_cases[j]);
                             den.insert(v_cases[j]);
                         }                
                     }
                     else
                     {
-                        denominator = v_queries[1];
+                        denominator = v_queries[1].substr(0, 2);
                         num.insert(v_queries[1]);
                         den.insert(v_queries[1]);
                     }
@@ -424,81 +439,45 @@ int main()
                 }
                 else
                 {
-                    numerator = query;
+                    numerator = query.substr(0, 2);
                     num.insert(query);
                 }
 
                 
 
                 numerator += denominator;
-/*
-                cout << endl << "Num y den" << endl;
-                cout << numerator << " " << num.size() << endl;
-                cout << denominator << " " << den.size() <<endl;
-
-                //num
-                cout << "******num******" << endl;
-                hiddenNodes(num);
-                cout << "************" << endl;
-
-                //den
-                cout << "******den******" << endl;
-                hiddenNodes(den);
-                cout << "************" << endl;
-*/
-                
-                
-	            //for each element in v_queries look for the parents and construc numerator
-	            //denominator = nodes and parents after |
-	
-	            //completar las tablas
-
-	            //calcular probabilidad preguntando a la tabla de cada nodo si conoce los elementos (Ruben)
+                hiddenNodes(numerator);
+            
+                hiddenNodes(denominator);
 
                 v_queries.clear();
                 num.clear();
                 den.clear();
+
+                double p_num = 0.0;
+                double p_den = 0.0;
+                exp = completeExpression(numerator);    
+                sort(exp.begin(), exp.end());
+                for(j = 0; j < exp.size(); j++)
+                {
+                    //cout << exp[j] << " = " << chainRule(exp[j]) << endl;
+                    p_num += chainRule(exp[j]);
+                }
+                //cout << "num " << p_num <<  endl;
+
+                exp.clear();
+                exp = completeExpression(denominator);    
+                sort(exp.begin(), exp.end());
+                for(j = 0; j < exp.size(); j++)
+                {
+                    //cout << j << " " << exp[j] << " = " << chainRule(exp[j]) << endl << endl;;
+                    p_den += chainRule(exp[j]);
+                }
+                //cout << "den " << p_den <<  endl;
+                //cout << setprecision(7) << fixed << p_num/p_den << endl;
+                printf("%0.7G\n", p_num/p_den);
+                //cout << endl;
 	        }
         }     
     }
-
-
-    /*exp = completeExpression("-B+JAE");    
-    sort(exp.begin(), exp.end());
-    for(j = 0; j < exp.size(); j++)
-    {
-        cout << exp[j] << " = " << chainRule(exp[j]) << endl;
-        p_num += chainRule(exp[j]);
-    }
-    chainRule(exp[0]);*/
-
-
-    double p_num = 0.0;
-    double p_den = 0.0;
-    exp = completeExpression("+E");    
-    sort(exp.begin(), exp.end());
-    for(j = 0; j < exp.size(); j++)
-    {
-        //cout << exp[j] << " = " << chainRule(exp[j]) << endl;
-        p_num += chainRule(exp[j]);
-    }
-    cout << "num " << p_num <<  endl;
-
-
-
-    cout << "\n\n\n";
-    exp.clear();
-    exp = completeExpression("");    
-    sort(exp.begin(), exp.end());
-    for(j = 0; j < exp.size(); j++)
-    {
-        //cout << j << " " << exp[j] << " = " << chainRule(exp[j]) << endl << endl;;
-        p_den += chainRule(exp[j]);
-        cout << endl;
-    }
-    cout << "den " << p_den <<  endl;
-
-    cout << p_num/p_den << endl;
-    return 0;
-    
 }
